@@ -1,25 +1,18 @@
 require 'jwt'
 
-class AuthMiddleware
-  def initialize(app)
-    @app = app
+def authorize_request(request)
+  secret = ENV['JWT_SECRET'] || 'supersecreto123diegopetconnect456'
+  auth_header = request.env['HTTP_AUTHORIZATION']
+
+  if auth_header.nil? || !auth_header.start_with?("Bearer ")
+    halt 401, { error: 'Unauthorized: Missing token' }.to_json
   end
 
-  def call(env)
-    auth_header = env['HTTP_AUTHORIZATION']
-    token = auth_header&.split(' ')&.last
-
-    if token.nil?
-      return [401, { 'Content-Type' => 'application/json' }, [{ error: 'Token not provided' }.to_json]]
-    end
-
-    begin
-      decoded = JWT.decode(token, ENV['JWT_SECRET'], true, { algorithm: 'HS256' })
-      env['user'] = decoded[0]
-    rescue JWT::DecodeError
-      return [401, { 'Content-Type' => 'application/json' }, [{ error: 'Invalid token' }.to_json]]
-    end
-
-    @app.call(env)
+  token = auth_header.split(' ').last
+  begin
+    decoded = JWT.decode(token, secret, true, { algorithm: 'HS256' })
+    request.env['user'] = decoded[0]
+  rescue JWT::DecodeError => e
+    halt 401, { error: 'Unauthorized: Invalid token' }.to_json
   end
 end

@@ -1,14 +1,15 @@
 require 'sinatra'
 require 'json'
 require 'dotenv/load'
+
 require_relative 'config/database'
-require_relative 'routes/health_routes'
-require_relative 'middleware/auth_middleware'
+require_relative 'controllers/health_controller'
 
-use AuthMiddleware
-
-# Health Check
-get '/health' do
+before do
   content_type :json
+end
+
+# Punto de salud
+get '/health' do
   { status: 'ok', service: 'pet-health-service' }.to_json
 end
