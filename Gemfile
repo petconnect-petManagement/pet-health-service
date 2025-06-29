@@ -18,3 +18,4 @@ gem 'sequel'
 
 gem 'jwt'
 gem 'puma'
+gem 'rack'
