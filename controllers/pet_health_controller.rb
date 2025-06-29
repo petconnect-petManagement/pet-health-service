@@ -1,6 +1,6 @@
 require 'sinatra/base'
 require 'json'
-require_relative '../models/pet_health_record'
+require_relative '../models/pet_health'
 
 class PetHealthController < Sinatra::Base
   before do
