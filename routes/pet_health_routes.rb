@@ -1,6 +1,9 @@
 require 'sinatra'
 require 'json'
 require_relative '../models/pet_health'
+require_relative '../controllers/health_controller'
+
+use AuthMiddleware
 
 before do
   content_type 'application/json'
@@ -24,4 +27,17 @@ end
 get '/api/pet-health/:pet_id' do
   records = PetHealth.where(pet_id: params[:pet_id]).all
   records.to_json
+end
+
+post '/api/pet-health' do
+  payload = JSON.parse(request.body.read)
+  status, response = HealthController.create(payload)
+  status status
+  response
+end
+
+get '/api/pet-health/:pet_id' do
+  status, response = HealthController.get_by_pet(params['pet_id'])
+  status status
+  response
 end
